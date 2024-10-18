@@ -75,7 +75,7 @@ body {
 
 footer {
     background-color: #132D65;
-    position: fixed;
+
     width: 100%;
     bottom: 0;
 }
@@ -134,4 +134,8 @@ footer {
 
 #tiny {
     padding-left: 8px;
+}
+
+.home_image img{
+    width: 100%;
 }
