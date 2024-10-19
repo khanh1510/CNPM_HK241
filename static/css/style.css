@@ -24,13 +24,15 @@ body {
 .banner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     background-color: #132D65;
     /* padding: 20px; */
     height: 6rem;
 }
 
-
+.logo img {
+    height: 80px;
+}
 
 .text {
     flex-grow: 1; /* Allows the text to take all available space */
@@ -66,10 +68,12 @@ body {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .login-button button:hover {
     background-color: #f0f0f0;
+
 }
 /* End NAV section */
 
@@ -138,4 +142,34 @@ footer {
 
 .home_image img{
     width: 100%;
+}
+
+
+/* Navigation menu styles */
+.nav_menu {
+    display: flex;
+    gap: 30px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nav_link a {
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: #FFF;
+    padding: 20px;
+}
+
+.nav_link a:hover {
+    color: #007bff;
+}
+
+/* Avatar section */
+.avatar img     {
+    height: 50px;
+    width: 50px;
+    background-color: #ccc;
+    border-radius: 50%;
+
 }
