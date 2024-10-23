@@ -1,5 +1,5 @@
 # Phần đã thực hiện
-base, home_student, home_spso, home_not_login
+base, home_student, home_spso, home_not_login, login, login-form
 
 # Hướng dẫn sử dụng
 
