@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-
-
-type Login = {
-    username: string,
-    password: string
-}
+import { AuthType } from "../../axios/type/authType";
+import { authAPI } from "../../axios/auth";
 
 const LoginPage: React.FC = () => {
-    const [infoLogin, setInfoLogin] = useState<Login>({
-        username: '',
-        password: ''
+    const [infoLogin, setInfoLogin] = useState<AuthType>({
+        email: '',
+        password: '',
+        role: 'student'
     });
     const [showPassword, setShowPassword] = useState(false);
     const [capsLockOn, setCapsLockOn] = useState(false);
@@ -24,8 +21,8 @@ const LoginPage: React.FC = () => {
         }
     }, [navigate]);
 
-    const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInfoLogin({ ...infoLogin, username: e.target.value });
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInfoLogin({ ...infoLogin, email: e.target.value });
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,20 +37,35 @@ const LoginPage: React.FC = () => {
         }
     };
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await authAPI.postLogin(infoLogin);
+            if (response) {
+                console.log("Đăng nhập thành công");
+                navigate("/home");
+            } else {
+                console.log("Đăng nhập thất bại");
+            }
+        } catch (error) {
+            console.error("Lỗi khi đăng nhập:", error);
+        }
+    };
+
     return (
         <div>
             <div className="bg-white bg-opacity-75 p-8 rounded-lg shadow-lg max-w-md w-full">
                 <h1 className="text-2xl font-bold text-center mb-6">Welcome</h1>
 
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label className="block text-gray-700">Email</label>
                         <input
                             type="text"
                             placeholder="Email"
                             className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
-                            value={infoLogin.username}
-                            onChange={handleUserNameChange}
+                            value={infoLogin.email}
+                            onChange={handleEmailChange}
                         />
                     </div>
 
