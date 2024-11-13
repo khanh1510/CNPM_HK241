@@ -1,0 +1,104 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["strictUndefinedChecks"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  email      String   @unique(map: "email_UNIQUE") @db.VarChar(50)
+  password   String   @db.VarChar(200)
+  avatar_url String?  @db.VarChar(200)
+  role       String   @default("student") @db.VarChar(10) //student/spso/admin
+  student    student?
+  spso       spso?
+}
+
+model student {
+  id            String     @id @unique @db.VarChar(36)
+  name          String     @db.VarChar(100)
+  paper_balance Int        @default(0)
+  school_year   String?    @db.VarChar(10)
+  user          user       @relation(fields: [id], references: [id], onDelete: Cascade, map: "fk_student1_user1")
+  printing      printing[]
+
+  @@index([id], map: "fk_student1_user1_idx")
+}
+
+model spso {
+  id       String     @id @unique @db.VarChar(36)
+  user     user       @relation(fields: [id], references: [id], onDelete: Cascade, map: "fk_spso1_user1")
+  setting  setting[]
+  printing printing[]
+
+  @@index([id], map: "fk_spso1_user1_idx")
+}
+
+model printer {
+  id          String     @id @unique @db.VarChar(20)
+  name        String     @db.VarChar(100)
+  description String?    @db.VarChar(500)
+  campus      String     @db.VarChar(50)
+  location    String     @db.VarChar(10)
+  status      String     @db.VarChar(10) //able/disable
+  create_at   DateTime   @default(now()) @db.DateTime(0)
+  update_at   DateTime   @default(now()) @db.DateTime(0)
+  printing    printing[]
+}
+
+model file {
+  printing_id      String   @db.VarChar(36)
+  name             String   @db.VarChar(100)
+  file_url         String   @db.VarChar(200)
+  file_size        Decimal
+  page_number      Int
+  copies_number    Int
+  page_type        String   @default("A4") @db.VarChar(5)
+  print_from_page  Int      @default(1)
+  print_to_page    Int
+  print_horizontal Boolean  @default(false) //vertical/horizontal
+  left             Decimal
+  right            Decimal
+  top              Decimal
+  bottom           Decimal
+  single_sided     Boolean  @default(true)
+  printing         printing @relation(fields: [printing_id], references: [id], onDelete: Cascade, map: "fk_file1_printing1")
+
+  @@id([printing_id, name])
+}
+
+model printing {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  student_id String   @db.VarChar(36)
+  printer_id String   @db.VarChar(36)
+  spso_id    String?  @db.VarChar(36)
+  status     String   @default("waiting") @db.VarChar(10) //waiting/printing/printed/received/cancel
+  create_at  DateTime @default(now()) @db.DateTime(0)
+  update_at  DateTime @default(now()) @db.DateTime(0)
+  student    student  @relation(fields: [student_id], references: [id], onDelete: Cascade, map: "fk_printing1_student1")
+  printer    printer  @relation(fields: [printer_id], references: [id], onDelete: Cascade, map: "fk_printing1_printer1")
+  spso       spso?    @relation(fields: [spso_id], references: [id], onDelete: Cascade, map: "fk_printing1_spso1")
+  file       file[]
+}
+
+model setting {
+  id          String       @id @default(uuid()) @db.VarChar(36)
+  spso_id     String       @db.VarChar(36)
+  page_number Int?
+  supply_date DateTime?
+  create_at   DateTime     @default(now()) @db.DateTime(0)
+  spso        spso         @relation(fields: [spso_id], references: [id], onDelete: Cascade, map: "fk_setting1_spso1")
+  file_types  file_types[]
+}
+
+model file_types {
+  setting_id String  @db.VarChar(36)
+  type       String  @db.VarChar(10)
+  setting    setting @relation(fields: [setting_id], references: [id], onDelete: Cascade, map: "fk_file_types1_setting1")
+
+  @@id([setting_id, type])
+}
