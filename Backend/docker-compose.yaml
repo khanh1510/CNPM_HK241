@@ -26,6 +26,7 @@ services:
     volumes:
       - mydb:/var/lib/mysql:rw
       - ./mysql-db:/docker-entrypoint-initdb.d/
+      # - ./db:/docker-entrypoint-initdb.d/triggers/create_trigger.sql
     networks:
       - default
       

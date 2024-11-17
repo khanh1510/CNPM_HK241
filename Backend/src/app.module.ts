@@ -12,6 +12,7 @@ import { PrinterModule } from './printer/printer.module';
 import { FileModule } from './file/file.module';
 import { APP_GUARD } from '@nestjs/core';
 import { MyJwtGuard } from './auth/guard';
+import { SettingModule } from './setting/setting.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MyJwtGuard } from './auth/guard';
     PrintingModule,
     PrinterModule,
     FileModule,
+    SettingModule,
   ],
   controllers: [AppController],
   providers: [
