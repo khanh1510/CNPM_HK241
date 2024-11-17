@@ -39,9 +39,9 @@ networks:
 #QUERY
 #User
 #docker exec -it <container_name> mysql -u <username> -p
-#docker exec -it ssms_db mysql -u testuser -p
+#docker exec -it spss_db mysql -u testuser -p
 #root
-#docker exec -it ssms_db mysql -u root -p
+#docker exec -it spss_db mysql -u root -p
 
 #use <dbname>;
 #SELECT * FROM user;

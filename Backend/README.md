@@ -20,6 +20,7 @@ Docker:
 - `npx prisma migrate dev --name init`: để migrate prisma.schema vào database trống.
 - `npm run start:dev`: khởi động server.
 - `npx prisma studio`: hiển thị phần database.
+- `ts-node prisma/seed.ts`: generate data from seed.ts
 - `nest g module <folder name>`: nestjs sẽ tự động folder có tên là <folder_name> cho chúng ta trong thư mục `src`, bao gồm file `module`.
 - `nest g controller <folder name>`: nestjs sẽ tự động folder có tên là <folder_name> cho chúng ta trong thư mục `src`, bao gồm file `controller`.
 - `nest g service <folder name>`: nestjs sẽ tự động folder có tên là <folder_name> cho chúng ta trong thư mục `src`, bao gồm file `service`.

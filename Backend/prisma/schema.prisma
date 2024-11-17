@@ -31,6 +31,7 @@ model student {
 
 model spso {
   id       String     @id @unique @db.VarChar(36)
+  name     String     @db.VarChar(100)
   user     user       @relation(fields: [id], references: [id], onDelete: Cascade, map: "fk_spso1_user1")
   setting  setting[]
   printing printing[]
