@@ -39,6 +39,7 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Login");
         try {
             const response = await authAPI.postLogin(infoLogin);
             if (response) {
@@ -51,6 +52,7 @@ const LoginPage: React.FC = () => {
             console.error("Lỗi khi đăng nhập:", error);
         }
     };
+
 
     return (
         <div>

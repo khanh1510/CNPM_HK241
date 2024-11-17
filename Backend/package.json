@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "db:dev:remove": "docker compose rm ssps_db -s -f -v",
-    "db:dev:create": "docker compose up ssps_db -d",
+    "db:dev:remove": "docker compose rm spss_db -s -f -v",
+    "db:dev:create": "docker compose up spss_db -d",
     "prisma:dev:deploy": "prisma migrate deploy",
     "db:dev:restart": "npm run db:dev:remove && npm run db:dev:create && timeout /t 5 && npm run prisma:dev:deploy",
     "test:e2e": "jest --config --watch -no-cache ./test/jest-e2e.json",

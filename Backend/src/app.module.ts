@@ -10,6 +10,8 @@ import { SpsoModule } from './spso/spso.module';
 import { PrintingModule } from './printing/printing.module';
 import { PrinterModule } from './printer/printer.module';
 import { FileModule } from './file/file.module';
+import { APP_GUARD } from '@nestjs/core';
+import { MyJwtGuard } from './auth/guard';
 
 @Module({
   imports: [
@@ -26,6 +28,12 @@ import { FileModule } from './file/file.module';
     FileModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: MyJwtGuard,
+    },
+  ],
 })
 export class AppModule {}

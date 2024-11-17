@@ -12,9 +12,9 @@ services:
   #     NODE_ENV: development
   #   volumes:
   #     - ./src:/usr/src/app/src
-  ssps_db:
+  spss_db:
     image: mysql:8.0.40
-    container_name: ssps_db
+    container_name: spss_db
     env_file: ./.env
     ports:
       - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
