@@ -10,15 +10,11 @@ const axiosClient = axios.create({
   },
 });
 
-
 axiosClient.interceptors.request.use(
   (config) => {
-    const user_login = localStorage.getItem('user_login'); // Lấy token từ localStorage (nếu có)
-    if (user_login) {
-      const user = JSON.parse(user_login)
-      config.headers.Authorization = `Bearer ${user?.accessToken}`;
-    } else {
-      window.location.href = `${environment.apiUrl}/auth/login`;
+    const token = localStorage.getItem("token"); // Lấy token từ localStorage (nếu có)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

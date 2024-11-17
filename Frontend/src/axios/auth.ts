@@ -9,6 +9,7 @@ export const authAPI = {
                 password: params.password,
                 role: params.role
             })
+            console.log(response)
             return response;
         } catch (error) {
             console.log(error)

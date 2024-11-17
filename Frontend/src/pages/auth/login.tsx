@@ -43,6 +43,9 @@ const LoginPage: React.FC = () => {
             const response = await authAPI.postLogin(infoLogin);
             if (response) {
                 console.log("Đăng nhập thành công");
+                // Lưu thông tin đăng nhập vào localStorage
+                localStorage.setItem("token", JSON.stringify(response));
+                localStorage.setItem("isLoggedIn", "true");
                 navigate("/home");
             } else {
                 console.log("Đăng nhập thất bại");
