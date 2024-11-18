@@ -9,6 +9,10 @@ export class SettingRequestDto{
     @IsString()
     @IsNotEmpty()
     supplyDate: string; 
+
+    @IsString()
+    @IsNotEmpty()
+    pagePrice: string; 
     
     @IsArray()
     fileTypes: string[]
