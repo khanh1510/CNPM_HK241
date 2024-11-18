@@ -9,4 +9,16 @@ export class AuthDTO {
   @IsNotEmpty()
   password: string;
 
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+}
+
+export class LoginResponseDto{
+
+  id: string;
+
+  email: string;
+
+  accessToken: string;
 }

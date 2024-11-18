@@ -12,9 +12,9 @@ services:
   #     NODE_ENV: development
   #   volumes:
   #     - ./src:/usr/src/app/src
-  ssps_db:
+  spss_db:
     image: mysql:8.0.40
-    container_name: ssps_db
+    container_name: spss_db
     env_file: ./.env
     ports:
       - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
@@ -26,6 +26,7 @@ services:
     volumes:
       - mydb:/var/lib/mysql:rw
       - ./mysql-db:/docker-entrypoint-initdb.d/
+      # - ./db:/docker-entrypoint-initdb.d/triggers/create_trigger.sql
     networks:
       - default
       
@@ -39,9 +40,9 @@ networks:
 #QUERY
 #User
 #docker exec -it <container_name> mysql -u <username> -p
-#docker exec -it ssms_db mysql -u testuser -p
+#docker exec -it spss_db mysql -u testuser -p
 #root
-#docker exec -it ssms_db mysql -u root -p
+#docker exec -it spss_db mysql -u root -p
 
 #use <dbname>;
 #SELECT * FROM user;

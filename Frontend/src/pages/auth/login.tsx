@@ -39,10 +39,14 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Login");
         try {
             const response = await authAPI.postLogin(infoLogin);
             if (response) {
                 console.log("Đăng nhập thành công");
+                // Lưu thông tin đăng nhập vào localStorage
+                localStorage.setItem("token", JSON.stringify(response));
+                localStorage.setItem("isLoggedIn", "true");
                 navigate("/home");
             } else {
                 console.log("Đăng nhập thất bại");
@@ -51,6 +55,7 @@ const LoginPage: React.FC = () => {
             console.error("Lỗi khi đăng nhập:", error);
         }
     };
+
 
     return (
         <div>
