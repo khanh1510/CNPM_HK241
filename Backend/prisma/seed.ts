@@ -111,6 +111,7 @@ async function main() {
     id: uuidv4(),
     spso_id: spsoItem.id,
     page_number: 20,
+    page_price: 200,
     supply_date: new Date(),
   }));
   await prisma.setting.createMany({ data: settings });

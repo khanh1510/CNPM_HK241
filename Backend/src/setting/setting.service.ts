@@ -12,14 +12,22 @@ export class SettingService {
         spsoId: string,
         paperNumber: string,
         supplyDate: string,
+        pagePrice: string,
         fileTypes: string[],
     ): Promise<string> {
         try {
             const paper_number = Number(paperNumber);
+            const page_price = Number(pagePrice);
 
             if (paper_number < 0) {
                 throw new BadRequestException('Số lượng không được âm');
             }
+
+            if (paper_number < 0) {
+                throw new BadRequestException('Giá giấy không được âm');
+            }
+
+
             const formattedSupplyDate = parse(supplyDate, 'yyyy-MM-dd', new Date());
             const today = new Date();
             if (formattedSupplyDate < today) {
@@ -39,6 +47,7 @@ export class SettingService {
                     data: {
                         spso_id: spsoId,
                         page_number: paper_number,
+                        page_price: page_price,
                         supply_date: formattedSupplyDate,
                     },
                 });

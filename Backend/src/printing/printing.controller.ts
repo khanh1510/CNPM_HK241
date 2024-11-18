@@ -1,59 +1,113 @@
-import { BadRequestException, Body, Controller, Get, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { PrintingService } from './printing.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { user } from '@prisma/client';
+import { GetUser } from 'src/auth/decorator';
+import { MessageResponseDto, NamePathSizeDto, PrintingRequestDto } from './dto';
+import { promises as fs } from 'fs';
+import { SettingService } from 'src/setting/setting.service';
 
 @Controller('printing')
 export class PrintingController {
     constructor(
         private printingService: PrintingService,
+        private settingService: SettingService,
+
     ) { }
 
+    @Get('pre-printing')
+    async getPrePrinting(): Promise<string[]> {
+        return await this.settingService.getLatestFileTypes();
+    }
+
     @Post('printing')
-    @UseInterceptors(FileInterceptor('files', {
+    @UseInterceptors(AnyFilesInterceptor({
         storage: storageConfig('file_url'),
         fileFilter: (body, file, cb) => {
             const ext = extname(file.originalname);
-            const allowedExtArr = ['.pdf', '.doc', '.docx', '.pptx'];
+            const allowedExtArr = ['.pdf', '.doc', '.docx', '.pptx', '.xml', '.png', '.jpeg', '.jpg'];
             if (!allowedExtArr.includes(ext)) {
-                body.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+                body.fileValidationError = `Wrong extension type. Accepted file extensions are: ${allowedExtArr.toString()}`;
                 cb(null, false);
             } else {
                 const fileSize = parseInt(body.headers['content-length']);
                 if (fileSize > 1024 * 1024 * 50) {
-                    body.fileValidationError = 'File size is too large. Accepted file size is les than 50MB';
+                    body.fileValidationError = 'File size is too large. Accepted file size is less than 50MB';
                     cb(null, false);
                 } else {
                     cb(null, true);
                 }
             }
-        }
+        },
     }))
-    async createPrinting(@Body() body: any, @UploadedFile() files: Express.Multer.File[]) {
+    async createPrinting(
+        @GetUser() user: user,
+        @Body() body: PrintingRequestDto,
+        @UploadedFiles() files: Array<Express.Multer.File>
+    ): Promise<MessageResponseDto> {
+        const fileStorage = 'file_url';
+
         if (body.fileValidationError) {
             throw new BadRequestException(body.fileValidationError);
         }
+
         if (!files || files.length === 0) {
             throw new BadRequestException('At least one file is required!');
         }
 
-        const filePaths = files.map(file => file.fieldname + '/' + file.filename);
-        await this.printingService.createPrinting(body, filePaths); // Gửi mảng filePaths để lưu vào DB
-        return { message: 'success' };
+        console.log(files);
+        const student_id: string = user.id;
+
+        const filesNameAndPath: NamePathSizeDto[] = files.map((file) => ({
+            name: file.originalname,
+            path: fileStorage + '/' + file.filename,
+            size: file.size.toString(),
+        }));
+
+        try {
+            const message: string = await this.printingService.createPrinting(student_id, body, filesNameAndPath);
+
+            return { message };
+        } catch (error) {
+            console.error('Error creating printing job:', error);
+            await this.deleteUploadedFiles(filesNameAndPath.map(file => 'data/' + file.path));
+
+            throw new BadRequestException('Failed to create printing job. All uploaded files have been removed.');
+        }
     }
 
-    @Get('printings')
-    async getPrintings(@Query() query: any) {
-        const printings = await this.printingService.getAllPrintings(query);
-        return printings;
+    /**
+     * Hàm xóa file đã upload
+     * @param filePaths - Mảng đường dẫn các file cần xóa
+     */
+    private async deleteUploadedFiles(filePaths: string[]): Promise<void> {
+        console.log(filePaths)
+        for (const path of filePaths) {
+            try {
+                await fs.unlink(path);
+                console.log(`Deleted file: ${path}`);
+            } catch (error) {
+                console.error(`Failed to delete file: ${path}`, error);
+            }
+        }
     }
 
-    @Put('printing-status')
-    async updatePrintingStatus(@Body() body: { printing_id: string, status: string }) {
-        const { printing_id, status } = body;
-        const updatedPrinting = await this.printingService.updatePrintingStatus(printing_id, status);
-        return updatedPrinting;
-    }
+
+    // @Get('printings')
+    // async getPrintings(@Query() query: any) {
+    //     const printings = await this.printingService.getAllPrintings(query);
+    //     return printings;
+    // }
+
+    // @Put('printing-status')
+    // async updatePrintingStatus(@Body() body: { printing_id: string, status: string }) {
+    //     const { printing_id, status } = body;
+    //     const updatedPrinting = await this.printingService.updatePrintingStatus(printing_id, status);
+    //     return updatedPrinting;
+    // }
 
 }
+
+

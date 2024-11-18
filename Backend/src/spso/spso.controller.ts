@@ -31,6 +31,7 @@ export class SpsoController {
             user.id,
             body.paperNumber,
             body.supplyDate,
+            body.pagePrice,
             body.fileTypes,
         );
         return { message };
