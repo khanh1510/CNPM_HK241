@@ -1,4 +1,4 @@
-import { IsArray, IsIn, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsArray, IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class FilePrintingRequestDto{
     
@@ -62,4 +62,37 @@ export class PrintingRequestDto {
     @IsString()
     @IsOptional()
     fileValidationError: string;
+}
+
+export class GetAllPrintingsRequestDto {
+
+    @IsOptional()
+    search: string;
+
+    @IsOptional()
+    start_date: string
+    
+    @IsOptional()
+    end_date: string;
+
+    @IsString()
+    @IsNotEmpty()
+    page: string;
+
+    @IsString()
+    @IsNotEmpty()
+    items_per_page: string;
+}
+
+export class UpdateStatusDto {
+
+    @IsUUID()
+    @IsString()
+    @IsNotEmpty()
+    printing_id: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsIn(['waiting', 'printing', 'printed', 'received', 'cancel'])
+    status: 'waiting'|'printing'|'printed'|'received'|'cancel';
 }

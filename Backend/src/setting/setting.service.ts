@@ -95,5 +95,23 @@ export class SettingService {
         }
     }
 
+    async getLatestPaperPrice(): Promise<number> {
+        try {
+            const latestSetting = await this.prismaService.setting.findFirst({
+                orderBy: { create_at: 'desc' },
+                select: { page_price: true },
+            });
+
+            if (!latestSetting) {
+                throw new NotFoundException('Không tìm thấy cấu hình gần nhất');
+            }
+
+            return latestSetting.page_price;
+        } catch (error) {
+            console.error('Error fetching paper price:', error.message);
+            throw new BadRequestException('Lỗi khi lấy thông tin giá giấy');
+        }
+    }
+
 
 }

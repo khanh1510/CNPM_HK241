@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service'; // Đảm bảo bạn có service Prisma
 import { BadRequestException } from '@nestjs/common';
-import { NamePathSizeDto, PrintingRequestDto } from './dto';
+import { AllPrintingsResponseDto, GetAllPrintingsRequestDto, NamePathSizeDto, PrintingRequestDto } from './dto';
 
 @Injectable()
 export class PrintingService {
@@ -82,53 +82,138 @@ export class PrintingService {
   }
 
 
-  // async getAllPrintings(query: any) {
-  //     const { student_id, printer_id, spso_id, start_date, end_date, printing_id } = query;
+  async getAllPrintings(id: string, query: GetAllPrintingsRequestDto): Promise<AllPrintingsResponseDto> {
+    const search = query.search || '';
+    const startDate = query.start_date ? new Date(query.start_date) : undefined;
+    const endDate = query.end_date ? new Date(query.end_date) : undefined;
+    const page = parseInt(query.page, 10) || 1;
+    const itemsPerPage = parseInt(query.items_per_page, 10) || 10;
 
-  //     const whereClause: any = {};
+    const whereClause: any = {};
 
-  //     if (student_id) whereClause.student_id = student_id;
-  //     if (printer_id) whereClause.printer_id = printer_id;
-  //     if (spso_id) whereClause.spso_id = spso_id;
-  //     if (printing_id) whereClause.id = printing_id;
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      include: { spso: true, student: true },
+    });
 
-  //     if (start_date && end_date) {
-  //         whereClause.create_at = {
-  //             gte: new Date(start_date),
-  //             lte: new Date(end_date),
-  //         };
-  //     }
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
 
-  //     try {
-  //         const printings = await this.prisma.printing.findMany({
-  //             where: whereClause,
-  //             include: {
-  //                 student: true,
-  //                 printer: true,
-  //                 spso: true,
-  //                 file: true,
-  //             },
-  //         });
+    if (user.spso) {
+      if (startDate && endDate) {
+        whereClause.create_at = { gte: startDate, lte: endDate };
+      }
+      if (search) {
+        whereClause.OR = [
+          { id: { contains: search } },
+          { student: { mssv: { contains: search } } },
+          { printer_id: { contains: search } },
+          { file: { some: { name: { contains: search } } } },
+        ];
+      }
+    } else if (user.student) {
+      whereClause.student_id = user.student.id;
 
-  //         return printings;
-  //     } catch (error) {
-  //         throw new BadRequestException('Error fetching printings');
-  //     }
-  // }
+      if (startDate && endDate) {
+        whereClause.create_at = { gte: startDate, lte: endDate };
+      }
+      if (search) {
+        whereClause.OR = [
+          { id: { contains: search } },
+          { printer_id: { contains: search } },
+          { file: { some: { name: { contains: search } } } },
+        ];
+      }
+    } else {
+      throw new BadRequestException('Invalid user role');
+    }
 
-  // async updatePrintingStatus(printing_id: string, status: string) {
-  //     try {
-  //         const updatedPrinting = await this.prisma.printing.update({
-  //             where: { id: printing_id },
-  //             data: {
-  //                 status,
-  //                 update_at: new Date(),
-  //             },
-  //         });
-  //         return updatedPrinting;
-  //     } catch (error) {
-  //         throw new BadRequestException('Error updating printing status');
-  //     }
-  // }
+    try {
 
+      const [total, printings] = await Promise.all([
+        this.prismaService.printing.count({ where: whereClause }),
+        this.prismaService.printing.findMany({
+          where: whereClause,
+          include: {
+            student: true,
+            printer: true,
+            spso: true,
+            file: true,
+          },
+          skip: (page - 1) * itemsPerPage,
+          take: itemsPerPage,
+          orderBy: { create_at: 'desc' },
+        }),
+      ]);
+
+      const data = printings.map((printing) => ({
+        id: printing.id,
+        mssv: printing.student?.mssv || null,
+        printer_id: printing.printer_id,
+        create_at: printing.create_at,
+        file_name: printing.file.map((f) => f.name),
+        total_paper: printing.file.reduce((total, f) => total + (f.print_to_page - f.print_from_page) * f.copies_number, 0),
+        status: printing.status,
+      }));
+
+      const lastPage = Math.ceil(total / itemsPerPage);
+      const nextPage = page < lastPage ? page + 1 : null;
+      const prevPage = page > 1 ? page - 1 : null;
+
+      return {
+        data,
+        total,
+        currentPage: page,
+        nextPage,
+        prevPage,
+        lastPage,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Error fetching printings');
+    }
+  }
+
+  async updatePrintingStatus(
+    id: string,
+    printing_id: string,
+    status: string,
+  ): Promise<string> {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { id },
+        include: { spso: true },
+      });
+
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      if (user.spso) {
+        const updatedPrinting = await this.prismaService.printing.update({
+          where: { id: printing_id },
+          data: {
+            status,
+            spso_id: user.spso.id,
+            update_at: new Date(),
+          },
+        });
+        return `Printing status updated successfully by SPSo. New status: ${updatedPrinting.status}`;
+      }
+
+      const updatedPrinting = await this.prismaService.printing.update({
+        where: { id: printing_id },
+        data: {
+          status,
+          update_at: new Date(),
+        },
+      });
+
+      return `Printing status updated successfully. New status: ${updatedPrinting.status}`;
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Error updating printing status');
+    }
+  }
 }

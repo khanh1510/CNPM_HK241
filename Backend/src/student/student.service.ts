@@ -18,6 +18,7 @@ export class StudentService {
                     name: true,
                     paper_balance: true,
                     school_year: true,
+                    mssv: true,
                     user: {
                         select: {
                             email: true,
@@ -36,7 +37,9 @@ export class StudentService {
                 avatar_url: student.user.avatar_url,
                 name: student.name,
                 paper_balance: student.paper_balance.toString(),
-                school_year: student.school_year
+                school_year: student.school_year,
+                mssv: student.mssv,
+
             };
         } catch (error) {
             console.error('Error fetching student info:', error.message);

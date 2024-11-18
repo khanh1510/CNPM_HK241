@@ -1,11 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Put, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { PrintingService } from './printing.service';
 import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { user } from '@prisma/client';
 import { GetUser } from 'src/auth/decorator';
-import { MessageResponseDto, NamePathSizeDto, PrintingRequestDto } from './dto';
+import { GetAllPrintingsRequestDto, MessageResponseDto, NamePathSizeDto, PrintingRequestDto, UpdateStatusDto } from './dto';
 import { promises as fs } from 'fs';
 import { SettingService } from 'src/setting/setting.service';
 
@@ -22,7 +22,7 @@ export class PrintingController {
         return await this.settingService.getLatestFileTypes();
     }
 
-    @Post('printing')
+    @Post('print')
     @UseInterceptors(AnyFilesInterceptor({
         storage: storageConfig('file_url'),
         fileFilter: (body, file, cb) => {
@@ -95,18 +95,17 @@ export class PrintingController {
     }
 
 
-    // @Get('printings')
-    // async getPrintings(@Query() query: any) {
-    //     const printings = await this.printingService.getAllPrintings(query);
-    //     return printings;
-    // }
+    @Get('all-printings')
+    async getPrintings(@GetUser() user: user, @Query() query: GetAllPrintingsRequestDto) {
+        const printings = await this.printingService.getAllPrintings(user.id, query);
+        return printings;
+    }
 
-    // @Put('printing-status')
-    // async updatePrintingStatus(@Body() body: { printing_id: string, status: string }) {
-    //     const { printing_id, status } = body;
-    //     const updatedPrinting = await this.printingService.updatePrintingStatus(printing_id, status);
-    //     return updatedPrinting;
-    // }
+    @Put('printing-status')
+    async updatePrintingStatus(@GetUser() user: user, @Body() body: UpdateStatusDto): Promise<MessageResponseDto> {
+        const message = await this.printingService.updatePrintingStatus(user.id, body.printing_id, body.status);
+        return { message };
+    }
 
 }
 

@@ -25,12 +25,20 @@ async function main() {
   await prisma.user.createMany({ data: users });
 
   // Seed bảng student
-  const studentData = students.map((student, index) => ({
-    id: student.id,
-    name: `Sinh Viên ${index + 1}`,
-    paper_balance: 20,
-    school_year: ['2021', '2022', '2023', '2024'][Math.floor(Math.random() * 4)],
-  }));
+  const schoolYears = ['2021', '2022', '2023', '2024'];
+  const studentData = students.map((student, index) => {
+    const schoolYear = schoolYears[Math.floor(Math.random() * schoolYears.length)];
+    const yearPrefix = schoolYear.slice(-2); // Lấy 2 số cuối của năm học
+    const randomNumber = Math.floor(10000 + Math.random() * 90000).toString(); // Tạo số ngẫu nhiên 5 chữ số
+    const mssv = yearPrefix + randomNumber; // Ghép thành MSSV
+    return {
+      id: student.id,
+      name: `Sinh Viên ${index + 1}`,
+      paper_balance: 20,
+      school_year: schoolYear,
+      mssv: mssv,
+    };
+  });
   await prisma.student.createMany({ data: studentData });
 
   // Seed bảng spso
@@ -42,10 +50,10 @@ async function main() {
 
   // Seed bảng printer
   const printers = Array.from({ length: 10 }, (_, index) => {
-    const campusPrefix = Math.random() > 0.5 ? 'LTK' : 'DA';  // Chọn campus ngẫu nhiên
-    const id = `${campusPrefix}-${(index + 1).toString().padStart(5, '0')}`;  // Tạo id theo thứ tự
+    const campusPrefix = Math.random() > 0.5 ? 'LTK' : 'DA'; // Chọn campus ngẫu nhiên
+    const id = `${campusPrefix}-${(index + 1).toString().padStart(5, '0')}`; // Tạo id theo thứ tự
     return {
-      id,  // id theo định dạng 'LTK-xxxxx' hoặc 'DA-xxxxx'
+      id, // id theo định dạng 'LTK-xxxxx' hoặc 'DA-xxxxx'
       name: `Printer ${index + 1}`,
       campus: campusPrefix === 'LTK' ? 'CS1 - Lý Thường Kiệt' : 'CS2 - Dĩ An',
       location: `H${Math.floor(Math.random() * 10)}-${Math.floor(Math.random() * 900 + 100)}`,

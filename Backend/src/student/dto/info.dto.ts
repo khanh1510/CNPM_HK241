@@ -13,4 +13,6 @@ export class StudentInfoDto {
     
     school_year: string;
 
+    mssv: string;
+
 }
