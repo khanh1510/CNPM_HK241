@@ -7,4 +7,6 @@ export class PrinterInfoDto {
     location: string;
 
     status: string;
+
+    campus: string;
 }

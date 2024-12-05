@@ -1,0 +1,38 @@
+
+.frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.frame-container {
+    padding: 50px;
+    margin: 200px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    width: 450px; /* Fixed width */
+    display: flex;
+    background-color: #91c6ff;
+}
+
+.frame-ava {
+    align-content: center;
+}
+
+.frame-ava img {
+    border-radius: 50%;
+    height: 100px;
+    
+}
+
+.information {
+    
+    padding: 20px;
+}
+
+.information h2 {
+    font-weight: 500;
+    padding: 10px 0;
+    font-size: 20px;
+}

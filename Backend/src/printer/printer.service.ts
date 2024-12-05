@@ -35,14 +35,16 @@ export class PrinterService {
                     id: true,
                     name: true,
                     location: true,
-                    status: true
+                    status: true,
+                    campus: true,
                 }
             })
             const data = printer.map((printer) => ({
                 id: printer.id,
                 name: printer.name,
                 location: printer.location,
-                status: printer.status
+                status: printer.status,
+                campus: printer.campus
             }))
             return data
         } catch (error) {
