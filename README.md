@@ -149,6 +149,9 @@ Ensure you have the following tools installed:
 ## Directory Structure
 ```
 HCMUT_SSPS/
+├── doc
+│   ├── mockup.md            # Link figma and mockup
+│   └── materials.md         # Link diagram design
 │
 ├── backend/                 # Backend server
 │   ├── data/                # Directory for uploaded files
@@ -234,9 +237,9 @@ Contributions are welcome! Please follow these steps:
 
 ## Contributors
 This project is developed by a group of Computer Science students from Ho Chi Minh University of Technology (HCMUT). Our members of the team:
-* Hoàng Văn Long        2211876 
-* Trần Quốc Khánh       2211536 
-* Nguyễn Thanh Tân      2213061 
-* Trịnh Thị Anh Thư     2213412 
-* Phạm Thị Tố Như       2212478 
-* Phạm Quốc Toàn        2213539 
+* Hoàng Văn Long        - 2211876 
+* Trần Quốc Khánh       - 2211536 
+* Nguyễn Thanh Tân      - 2213061 
+* Trịnh Thị Anh Thư     - 2213412 
+* Phạm Thị Tố Như       - 2212478 
+* Phạm Quốc Toàn        - 2213539 
